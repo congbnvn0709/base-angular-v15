@@ -1,0 +1,18 @@
+.action {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+
+.link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #1890ff;
+}
+
+.disable-row {
+  background-color: #f4f4f4;
+  pointer-events: none;
+  opacity: 0.4;
+}

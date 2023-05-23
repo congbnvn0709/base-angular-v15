@@ -1,0 +1,107 @@
+<nz-table
+  #basicTable
+  nzFrontPagination="false"
+  nzShowSizeChanger
+  [nzData]="(vm$ | async)?.items!"
+  [nzTotal]="(vm$ | async)?.totalCount!"
+  [nzPageIndex]="(vm$ | async)?.pageIndex!"
+  [nzPageSize]="(vm$ | async)?.pageSize!"
+  (nzQueryParams)="onQueryParamsChange($event)"
+  [nzScroll]="tableConfig.scrollConfig!"
+  [nzLoading]="(vm$ | async)?.isLoading"
+>
+  <thead>
+    <tr>
+      <ng-container
+        *ngFor="let item of tableConfig.columnConfig; let i = index"
+      >
+        <th
+          [nzSortFn]="item.canSort!"
+          [nzColumnKey]="getColumnKey(item.key)"
+          [nzAlign]="item.align || null"
+          [nzWidth]="item.width || ''"
+        >
+          {{ item.label }}
+        </th>
+      </ng-container>
+      <th nzAlign="center" *ngIf="tableConfig.showCommand">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      *ngFor="let data of basicTable.data"
+      [ngClass]="{
+        'disable-row': tableConfig.disabledRow && tableConfig.disabledRow(data)
+      }"
+    >
+      <ng-container
+        *ngFor="let item of tableConfig.columnConfig; let i = index"
+      >
+        <td
+          (click)="item.onClick && item.onClick(data)"
+          *ngIf="item.type === 'text'"
+          [nzAlign]="item.align || null"
+          [ngClass]="{ link: item.onClick }"
+        >
+          {{ data[item.key] }}
+        </td>
+        <td
+          (click)="item.onClick && item.onClick(data)"
+          *ngIf="item.type === 'date'"
+          [nzAlign]="item.align || null"
+          [ngClass]="{ link: item.onClick }"
+        >
+          {{ data[item.key] | date : item.format }}
+        </td>
+        <td
+          (click)="item.onClick && item.onClick(data)"
+          *ngIf="item.type === 'number'"
+          [nzAlign]="item.align || null"
+          [ngClass]="{ link: item.onClick }"
+        >
+          {{ data[item.key] | number : item.format }}
+        </td>
+        <td
+          (click)="item.onClick && item.onClick(data)"
+          *ngIf="item.type === 'percent'"
+          [nzAlign]="item.align || null"
+          [ngClass]="{ link: item.onClick }"
+        >
+          {{ data[item.key] | percent : item.format }}
+        </td>
+      </ng-container>
+      <td *ngIf="tableConfig.showCommand">
+        <div class="action">
+          <ng-container *ngFor="let command of tableConfig.commandConfig">
+            <ng-container *ngIf="!command.hidden || !command.hidden(data)">
+              <a
+                *ngIf="command.haveConfirm; else notConfirm"
+                nz-tooltip
+                nz-button
+                [disabled]="command.disableField && data[command.disableField]"
+                [nzTooltipTitle]="command.tooltip"
+                nz-popconfirm
+                [nzPopconfirmTitle]="command.confirmText"
+                nzPopconfirmPlacement="bottom"
+                (nzOnConfirm)="command.onClick!(data)"
+                ><i nz-icon [nzType]="command.icon" nzTheme="outline"></i
+              ></a>
+              <ng-template #notConfirm>
+                <a
+                  nz-tooltip
+                  nz-button
+                  [disabled]="
+                    command.disableField && data[command.disableField]
+                  "
+                  [nzTooltipTitle]="command.tooltip"
+                  (click)="command.onClick!(data)"
+                  ><i nz-icon [nzType]="command.icon" nzTheme="outline"></i
+                ></a>
+              </ng-template>
+            </ng-container>
+          </ng-container>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
